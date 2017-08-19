@@ -9,12 +9,12 @@ import android.util.LruCache;
  * 图片缓存
  */
 
-public class ImageCache {
+class ImageCache {
 
     //imageCache
     private LruCache<String, Bitmap> mLruCache;
 
-    public ImageCache() {
+    ImageCache() {
         initImageCache();
     }
 
