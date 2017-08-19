@@ -18,6 +18,75 @@ import java.util.concurrent.Executors;
 
 public class ImageLoader {
 
+    private ImageCache mImageCache;
+
+    //线程池,线程数量为 CPU 的数量
+    ExecutorService mExecutorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+
+    public ImageLoader(String url, ImageView iv) {
+        //initImageCache();
+        displayImage(url, iv);
+    }
+
+    public void setImageCache(ImageCache imageCache) {
+        mImageCache = imageCache;
+    }
+
+    /**
+     * 下载成功后将图片显示到 image 上
+     *
+     * @param url       图片 url
+     * @param imageView 控件
+     */
+    void displayImage(final String url, final ImageView imageView) {
+        imageView.setTag(url);
+
+        //不理解 ExecutorService.submit()这个方法
+        mExecutorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                Bitmap bitmap = mImageCache.get(url);
+
+                //没有图片就从网络下载
+                if (bitmap == null) {
+                    return;
+                }
+                bitmap = downloadImage(url);
+
+                if (imageView.getTag().equals(url)) {
+                    imageView.setImageBitmap(bitmap);
+                }
+                mImageCache.put(url, bitmap);
+            }
+        });
+    }
+
+    /**
+     * 下载图片
+     *
+     * @param imageUrl 图片地址
+     * @return bitmap
+     */
+    private Bitmap downloadImage(String imageUrl) {
+        Bitmap bitmap = null;
+
+        try {
+            URL url = new URL(imageUrl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            bitmap = BitmapFactory.decodeStream(conn.getInputStream());
+            conn.disconnect();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return bitmap;
+    }
+}
+/*
+//单一原则 code
+public class ImageLoader {
+
     //图片缓存
     //private LruCache<String, Bitmap> mLruCache;
 
@@ -54,15 +123,15 @@ public class ImageLoader {
         isUseSDKCache = useSDKCache;
     }
 
-    /* private void initImageCache() {
+    *//* private void initImageCache() {
         //计算可使用的最大缓存
         int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
         //取4分之1的可用内存作为缓存
         int cacheSize = maxMemory / 4;
 
-        *//*
+        *//**//*
          * 不太理解
-         *//*
+         *//**//*
         mLruCache = new LruCache<String, Bitmap>(cacheSize) {
             @Override
             protected int sizeOf(String key, Bitmap value) {
@@ -71,14 +140,25 @@ public class ImageLoader {
         };
 
     }
-*/
+*//*
 
-    /**
-     * 下载成功后将图片显示到 image 上
-     *
-     * @param url       图片 url
-     * @param imageView 控件
-     */
+    *//**
+ * 下载成功后将图片显示到 image 上
+ *
+ * @param url       图片 url
+ * @param imageView 控件
+ * <p>
+ * 从缓存中取图片
+ * @param url
+ * @return bitmap
+ * <p>
+ * 判断使用哪一种缓存策略
+ * @param url
+ * @param bitmap
+ * @return 下载图片
+ * @param imageUrl 图片地址
+ * @return bitmap
+ *//*
     void displayImage(final String url, final ImageView imageView) {
         imageView.setTag(url);
 
@@ -110,12 +190,12 @@ public class ImageLoader {
         });
     }
 
-    /**
-     * 从缓存中取图片
-     *
-     * @param url
-     * @return bitmap
-     */
+    *//**
+ * 从缓存中取图片
+ *
+ * @param url
+ * @return bitmap
+ *//*
     private Bitmap getCache(String url) {
         Bitmap bitmap = null;
         if (isDoubleCache) {
@@ -129,13 +209,13 @@ public class ImageLoader {
     }
 
 
-    /**
-     * 判断使用哪一种缓存策略
-     *
-     * @param url
-     * @param bitmap
-     * @return
-     */
+    *//**
+ * 判断使用哪一种缓存策略
+ *
+ * @param url
+ * @param bitmap
+ * @return
+ *//*
     private void isCache(String url, Bitmap bitmap) {
         if (isDoubleCache) {
             mDoubleCache.put(url, bitmap);
@@ -146,12 +226,12 @@ public class ImageLoader {
         }
     }
 
-    /**
-     * 下载图片
-     *
-     * @param imageUrl 图片地址
-     * @return bitmap
-     */
+    *//**
+ * 下载图片
+ *
+ * @param imageUrl 图片地址
+ * @return bitmap
+ *//*
     private Bitmap downloadImage(String imageUrl) {
         Bitmap bitmap = null;
 
@@ -166,4 +246,4 @@ public class ImageLoader {
 
         return bitmap;
     }
-}
+}*/

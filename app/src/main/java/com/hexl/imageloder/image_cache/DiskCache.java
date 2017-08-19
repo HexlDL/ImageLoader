@@ -14,7 +14,37 @@ import java.io.IOException;
  * <p>
  * 将图片缓存到 SD卡中
  */
+public class DiskCache implements ImageCache{
 
+    private String cacheDir = "sdcard/cache";
+
+    @Override
+    public void put(String url, Bitmap bitmap) {
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(cacheDir + url);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                assert fos != null;
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public Bitmap get(String url) {
+        return BitmapFactory.decodeFile(cacheDir + url);
+    }
+}
+
+
+/*
+//单一原则 code
 public class DiskCache {
 
     private String cacheDir = "sdcard/cache";
@@ -41,3 +71,4 @@ public class DiskCache {
     }
 
 }
+*/
